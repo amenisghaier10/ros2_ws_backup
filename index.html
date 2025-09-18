@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <title>Emotion Detection</title>
+    <style> 
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            padding: 20px;
+            margin: 0;
+
+        }
+
+        h1 { 
+             color: #333;
+        }
+        
+
+        #chatBox {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            min-width: 320px;
+            max-width: 500px;
+            font-size: 16px;
+
+        }
+
+        .user {
+            margin: 5px 0;
+            padding: 8px; 
+            border-radius: 10px;
+            background: #d0f0c0;
+            text-align: right;
+            color: #2c3e50;
+        }
+
+        .bot {
+            text-align: left;
+            color: #1a1a1a;
+            background: #e0e0e0;
+            padding: 8px; 
+            margin: 5px 0;
+            border-radius: 10px;
+        }
+
+        .meta {
+            font-size: 12px;
+            color: #666;
+            margin-top: 3px;
+        }
+
+
+        input, button {
+            padding: 10px;
+            margin-top: 15px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc; 
+        }
+ 
+        button {
+            background-color: #45a049;
+            color: white;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+
+
+<h1>Live Emotion Detection</h1>
+<input type="text" id="sentenceInput" placeholder="Type your sentence here...">
+<button onclick="sendSentence()">Send</button>
+
+<div id="chatBox">Waiting for data...</div>
+
+<script> 
+    const ws = new WebSocket("ws://localhost:8765");
+    ws.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        const chatBox = document.getElementById("chatBox");
+        chatBox.innerHTML=`
+             <div class="user"><strong>You:</strong> ${data.sentence}</div>
+             <div class="bot"><strong>Bot:</strong> ${data.reply}</div>
+             <div class="meta">Emotion: ${data.emotion} | Score: ${(data.score*100).toFixed(2)}%</div>
+    `;
+    };
+    function sendSentence() {
+        const sentence = document.getElementById("sentenceInput").value;
+        if (sentence.trim() !== ""){
+            ws.send(JSON.stringify({ sentence: sentence }));
+            document.getElementById("sentenceInput").value = "";
+        }
+    }
+
+    </script>
+</body>
+</html>
+
+            
+         
